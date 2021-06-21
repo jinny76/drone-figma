@@ -1,0 +1,33 @@
+<h2>预设配置导出</h2>
+<button id="export">导出</button>
+<button id="download">下载</button>
+<button id="cancel">取消</button>
+<br>
+<textarea id="idExportResult" rows="10" width="100%"></textarea>
+<script>
+
+document.getElementById('export').onclick = () => {
+  parent.postMessage({ pluginMessage: { type: 'export-preset'} }, '*')
+}
+
+document.getElementById('cancel').onclick = () => {
+  parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*')
+}
+
+document.getElementById('download').onclick = () => {
+    let link = document.createElement('a');
+    link.download = "presets.json";
+    link.style.display = 'none';
+
+    let blob = new Blob([document.getElementById("idExportResult").value]);
+    link.href = URL.createObjectURL(blob);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+onmessage = (event) => {
+    document.getElementById("idExportResult").value = event.data.pluginMessage;
+}
+
+</script>
