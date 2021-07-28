@@ -7,6 +7,41 @@
     <textarea id="idExportResult" rows="10" style="width: 100%"></textarea>
 </div>
 <script>
+    let wsInstance = new WebSocket("http://dev.kingfisher.live:8080/ws");
+
+    wsInstance.onopen = function() {
+    };
+
+    wsInstance.onerror = function(event) {
+        console.error("Ws error observed:", event);
+    };
+    wsInstance.onclose = function() {
+        console.log("Ws closing");
+    };
+    wsInstance.onmessage = function(e) {
+        if (e.data != null && e.data.indexOf("{") === 0) {
+            let message = JSON.parse(e.data);
+            if (message) {
+                handleMessage(message);
+            }
+        }
+    };
+
+    function handleMessage(message) {
+        if (message) {
+            switch (message.action) {
+                case "export":
+                    parent.postMessage({pluginMessage: {type: 'export-preset'}}, '*');
+                    setTimeout(() => {
+                        wsInstance.send(JSON.stringify({
+                            action: "export",
+                            data: document.getElementById("idExportResult").value
+                        }));
+                    }, 2000);
+                    break;
+            }
+        }
+    }
 
     document.getElementById('export').onclick = () => {
         parent.postMessage({pluginMessage: {type: 'export-preset'}}, '*')
